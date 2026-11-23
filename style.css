@@ -1,0 +1,576 @@
+
+/* =====================================
+   GLOBAL STYLES
+===================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --background: #10111b;
+    --surface: #191a29;
+    --surface-light: #222338;
+    --purple: #7965ff;
+    --purple-light: #a08fff;
+    --text: #ffffff;
+    --muted: #a4a5b8;
+    --border: rgba(255,255,255,0.09);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =====================================
+   HEADER
+===================================== */
+
+.site-header {
+    width: 100%;
+    height: 76px;
+    background: rgba(16,17,27,0.96);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+}
+
+.header-inner {
+    max-width: 1250px;
+    height: 100%;
+    margin: auto;
+    padding: 0 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: var(--purple-light);
+}
+
+.logo small {
+    margin-left: 7px;
+    padding: 4px 7px;
+    border-radius: 5px;
+    background: rgba(121,101,255,0.18);
+    color: var(--purple-light);
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.header-inner nav a {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: bold;
+    transition: color .2s;
+}
+
+.header-inner nav a:hover {
+    color: white;
+}
+
+
+/* =====================================
+   HERO
+===================================== */
+
+.hero {
+    min-height: 335px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 55px 20px;
+    background:
+        radial-gradient(
+            ellipse at 50% 10%,
+            rgba(121,101,255,0.25),
+            transparent 65%
+        ),
+        linear-gradient(180deg,#19172e,#10111b);
+    border-bottom: 1px solid var(--border);
+}
+
+.hero-content {
+    width: 100%;
+    max-width: 700px;
+}
+
+.hero-label,
+.section-label {
+    color: var(--purple-light);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.hero h1 {
+    margin-top: 12px;
+    font-size: clamp(42px,7vw,68px);
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: -3px;
+}
+
+.hero h1 span {
+    color: var(--purple-light);
+}
+
+.hero p {
+    margin-top: 15px;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+
+/* =====================================
+   SEARCH BAR
+===================================== */
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 510px;
+    margin: 28px auto 0;
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-52%);
+    font-size: 25px;
+    color: var(--muted);
+    pointer-events: none;
+}
+
+#searchInput {
+    width: 100%;
+    height: 54px;
+    padding: 0 20px 0 48px;
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 12px;
+    outline: none;
+    background: rgba(25,26,41,0.95);
+    color: white;
+    font-size: 14px;
+    transition: border .2s, box-shadow .2s;
+}
+
+#searchInput::placeholder {
+    color: #85869b;
+}
+
+#searchInput:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(121,101,255,0.15);
+}
+
+
+/* =====================================
+   GAME SECTION
+===================================== */
+
+.games-section {
+    max-width: 1250px;
+    margin: auto;
+    padding: 55px 25px 75px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.section-title h2 {
+    margin-top: 3px;
+    font-size: 29px;
+    font-weight: 850;
+    letter-spacing: -1px;
+}
+
+.game-count {
+    padding: 7px 13px;
+    border-radius: 20px;
+    background: rgba(121,101,255,0.13);
+    color: var(--purple-light);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+/* =====================================
+   GAME GRID
+===================================== */
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 20px;
+}
+
+.game-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface);
+    cursor: pointer;
+    transition:
+        transform .22s ease,
+        border-color .22s ease,
+        box-shadow .22s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(160,143,255,0.7);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.game-card:focus-visible {
+    outline: 2px solid var(--purple-light);
+    outline-offset: 3px;
+}
+
+
+/* =====================================
+   GAME THUMBNAILS
+===================================== */
+
+.game-thumbnail {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg,#302b75,#16182a);
+}
+
+.game-thumbnail img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform .3s ease;
+}
+
+.game-card:hover .game-thumbnail img {
+    transform: scale(1.05);
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: white;
+    background: linear-gradient(135deg,#302b75,#16182a);
+}
+
+
+/* =====================================
+   GAME INFORMATION
+===================================== */
+
+.game-info {
+    padding: 15px;
+}
+
+.game-info h3 {
+    overflow: hidden;
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game-info p {
+    min-height: 38px;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.tag {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 5px 9px;
+    border: 1px solid rgba(121,101,255,0.22);
+    border-radius: 5px;
+    background: rgba(121,101,255,0.12);
+    color: var(--purple-light);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* =====================================
+   EMPTY AND LOADING STATES
+===================================== */
+
+.loading {
+    grid-column: 1 / -1;
+    padding: 45px 15px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.no-results {
+    padding: 55px 15px;
+    text-align: center;
+}
+
+.no-results h3 {
+    font-size: 22px;
+}
+
+.no-results p {
+    margin-top: 7px;
+    color: var(--muted);
+}
+
+
+/* =====================================
+   FOOTER
+===================================== */
+
+footer {
+    padding: 25px 20px;
+    border-top: 1px solid var(--border);
+    background: #0c0d15;
+    text-align: center;
+}
+
+footer p {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+
+/* =====================================
+   GAME PLAYER MODAL
+===================================== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(7px);
+}
+
+.game-window {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1250px;
+    height: min(85vh,850px);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 13px;
+    background: #08090e;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+}
+
+.game-toolbar {
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    background: #191a29;
+    border-bottom: 1px solid var(--border);
+}
+
+.player-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-brand h2 {
+    overflow: hidden;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #8d75ff;
+    box-shadow: 0 0 10px #8d75ff;
+}
+
+.toolbar-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-buttons button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 7px;
+    background: var(--surface-light);
+    color: white;
+    font-size: 20px;
+    transition: background .2s;
+}
+
+.toolbar-buttons button:hover {
+    background: var(--purple);
+}
+
+.toolbar-buttons .close-button {
+    font-size: 25px;
+}
+
+.iframe-container {
+    flex: 1;
+    min-height: 0;
+    background: #000;
+}
+
+.iframe-container iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #000;
+}
+
+.iframe-container:fullscreen {
+    width: 100vw;
+    height: 100vh;
+}
+
+
+/* =====================================
+   RESPONSIVE DESIGN
+===================================== */
+
+@media (max-width: 950px) {
+    .games-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .games-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 12px;
+    }
+
+    .games-section {
+        padding: 38px 14px 55px;
+    }
+
+    .game-thumbnail {
+        height: 125px;
+    }
+
+    .game-info {
+        padding: 11px;
+    }
+
+    .game-info h3 {
+        font-size: 14px;
+    }
+
+    .game-info p {
+        font-size: 11px;
+    }
+
+    .hero {
+        min-height: 310px;
+    }
+
+    .hero h1 {
+        letter-spacing: -2px;
+    }
+
+    .game-window {
+        height: 90vh;
+    }
+
+    .modal {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 360px) {
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .game-thumbnail {
+        height: 175px;
+    }
+}
