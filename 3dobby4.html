@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>3D Obby</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    user-select: none;
+    touch-action: none;
+    background: #87ceeb;
+}
+
+canvas {
+    display: block;
+}
+
+/* ================= UI ================= */
+
+#ui {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+    color: white;
+    text-shadow: 2px 2px 5px #000;
+    pointer-events: none;
+}
+
+#title {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#stats {
+    margin-top: 5px;
+    font-size: 17px;
+}
+
+#help {
+    position: fixed;
+    left: 15px;
+    bottom: 15px;
+    z-index: 10;
+    color: white;
+    font-size: 14px;
+    text-shadow: 2px 2px 4px #000;
+    pointer-events: none;
+}
+
+/* ================= MOBILE TOGGLE ================= */
+
+#mobileToggle {
+    position: fixed;
+    right: 15px;
+    top: 15px;
+    z-index: 30;
+
+    border: none;
+    border-radius: 12px;
+
+    padding: 12px 18px;
+
+    background: #222;
+    color: white;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,.35);
+}
+
+/* ================= MOBILE CONTROLS ================= */
+
+#mobileControls {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    z-index: 25;
+
+    pointer-events: none;
+}
+
+/* Joystick */
+
+#joystick {
+    position: absolute;
+
+    left: 25px;
+    bottom: 30px;
+
+    width: 135px;
+    height: 135px;
+
+    border-radius: 50%;
+
+    background: rgba(0,0,0,.25);
+
+    border: 3px solid rgba(255,255,255,.45);
+
+    pointer-events: auto;
+}
+
+#stick {
+    position: absolute;
+
+    left: 37px;
+    top: 37px;
+
+    width: 55px;
+    height: 55px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.8);
+
+    box-shadow: 0 3px 10px rgba(0,0,0,.4);
+}
+
+/* Mobile buttons */
+
+.mobileButton {
+    position: absolute;
+
+    width: 70px;
+    height: 70px;
+
+    border: none;
+    border-radius: 50%;
+
+    color: white;
+
+    font-weight: bold;
+    font-size: 18px;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.4);
+
+    pointer-events: auto;
+}
+
+#jumpButton {
+    right: 25px;
+    bottom: 30px;
+
+    width: 85px;
+    height: 85px;
+
+    background: #00b894;
+}
+
+#lookLeft {
+    right: 120px;
+    top: 80px;
+
+    background: rgba(35,35,35,.8);
+}
+
+#lookRight {
+    right: 25px;
+    top: 80px;
+
+    background: rgba(35,35,35,.8);
+}
+
+#lookUp {
+    right: 72px;
+    top: 5px;
+
+    background: rgba(35,35,35,.8);
+}
+
+#lookDown {
+    right: 72px;
+    top: 155px;
+
+    background: rgba(35,35,35,.8);
+}
+
+/* ================= WIN SCREEN ================= */
+
+#message {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+
+    place-items: center;
+
+    z-index: 50;
+
+    background: rgba(0,0,0,.5);
+
+    color: white;
+
+    text-align: center;
+}
+
+#messageBox {
+    background: rgba(20,20,30,.96);
+
+    padding: 40px 55px;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 0 50px rgba(0,0,0,.7);
+}
+
+#message h1 {
+    margin: 0 0 10px;
+
+    font-size: 42px;
+}
+
+#message p {
+    font-size: 18px;
+}
+
+#message button {
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 13px 28px;
+
+    font-size: 18px;
+
+    background: #00d084;
+
+    color: white;
+
+    font-weight: bold;
+}
+
+@media(max-width:700px) {
+
+    #help {
+        display: none;
+    }
+
+    #title {
+        font-size: 22px;
+    }
+
+    #stats {
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= UI ================= -->
+
+<div id="ui">
+
+    <div id="title">
+        🏃 3D OBBY
+    </div>
+
+    <div id="stats">
+        Checkpoint:
+        <span id="checkpoint">1</span>
+
+        &nbsp; | &nbsp;
+
+        Deaths:
+        <span id="deaths">0</span>
+    </div>
+
+</div>
+
+<button id="mobileToggle">
+    📱 Mobile Controls
+</button>
+
+<div id="help">
+    W/S = Forward/Backward |
+    A/D = Strafe |
+    Arrow Keys = Look |
+    SPACE = Jump |
+    Mouse = Look |
+    R = Respawn
+</div>
+
+<!-- ================= MOBILE ================= -->
+
+<div id="mobileControls">
+
+    <div id="joystick">
+        <div id="stick"></div>
+    </div>
+
+    <button
+        class="mobileButton"
+        id="jumpButton">
+        JUMP
+    </button>
+
+    <button
+        class="mobileButton"
+        id="lookLeft">
+        ◀
+    </button>
+
+    <button
+        class="mobileButton"
+        id="lookRight">
+        ▶
+    </button>
+
+    <button
+        class="mobileButton"
+        id="lookUp">
+        ▲
+    </button>
+
+    <button
+        class="mobileButton"
+        id="lookDown">
+        ▼
+    </button>
+
+</div>
+
+<!-- ================= WIN SCREEN ================= -->
+
+<div id="message">
+
+    <div id="messageBox">
+
+        <h1>
+            🎉 YOU WON!
+        </h1>
+
+        <p>
+            You completed the obby!
+        </p>
+
+        <button onclick="restartGame()">
+            Play Again
+        </button>
+
+    </div>
+
+</div>
+
+<!-- ================= THREE.JS ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+
+/* =========================================================
+   THREE.JS SETUP
+========================================================= */
+
+const scene = new THREE.Scene();
+
+scene.background =
+    new THREE.Color(0x87ceeb);
+
+scene.fog =
+    new THREE.Fog(
+        0x87ceeb,
+        50,
+        200
+    );
+
+const camera =
+    new THREE.PerspectiveCamera(
+        70,
+        window.innerWidth /
+        window.innerHeight,
+        0.1,
+        500
+    );
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+renderer.setPixelRatio(
+    Math.min(
+        window.devicePixelRatio,
+        2
+    )
+);
+
+renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+
+/* =========================================================
+   LIGHTING
+========================================================= */
+
+const hemisphere =
+    new THREE.HemisphereLight(
+        0xffffff,
+        0x446677,
+        2
+    );
+
+scene.add(hemisphere);
+
+const sun =
+    new THREE.DirectionalLight(
+        0xffffff,
+        3
+    );
+
+sun.position.set(
+    30,
+    60,
+    20
+);
+
+sun.castShadow = true;
+
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
+
+sun.shadow.camera.left = -120;
+sun.shadow.camera.right = 120;
+sun.shadow.camera.top = 120;
+sun.shadow.camera.bottom = -120;
+
+scene.add(sun);
+
+
+/* =========================================================
+   MATERIALS
+========================================================= */
+
+const grass =
+    new THREE.MeshStandardMaterial({
+        color: 0x35c759,
+        roughness: .8
+    });
+
+const blue =
+    new THREE.MeshStandardMaterial({
+        color: 0x4b6cff,
+        roughness: .6
+    });
+
+const purple =
+    new THREE.MeshStandardMaterial({
+        color: 0xa855f7,
+        roughness: .6
+    });
+
+const yellow =
+    new THREE.MeshStandardMaterial({
+        color: 0xffd000,
+        emissive: 0x553300,
+        emissiveIntensity: .7
+    });
+
+const red =
+    new THREE.MeshStandardMaterial({
+        color: 0xff2020,
+        emissive: 0x550000,
+        emissiveIntensity: 1
+    });
+
+const green =
+    new THREE.MeshStandardMaterial({
+        color: 0x00ff88,
+        emissive: 0x006633,
+        emissiveIntensity: 1
+    });
+
+const white =
+    new THREE.MeshStandardMaterial({
+        color: 0xffffff
+    });
+
+
+/* =========================================================
+   PLATFORM SYSTEM
+========================================================= */
+
+const platforms = [];
+
+function createPlatform(
+    x,
+    y,
+    z,
+    width,
+    height,
+    depth,
+    material
+) {
+
+    const mesh =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                width,
+                height,
+                depth
+            ),
+            material
+        );
+
+    mesh.position.set(
+        x,
+        y,
+        z
+    );
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    scene.add(mesh);
+
+    platforms.push({
+        mesh: mesh,
+        w: width,
+        h: height,
+        d: depth
+    });
+
+    return mesh;
+}
+
+
+/* =========================================================
+   HUGE RED DEATH FLOOR
+========================================================= */
+
+const deathFloor =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            300,
+            2,
+            300
+        ),
+        red
+    );
+
+deathFloor.position.set(
+    0,
+    -8,
+    -65
+);
+
+deathFloor.receiveShadow = true;
+
+scene.add(deathFloor);
+
+
+/* =========================================================
+   SPAWN PLATFORM
+========================================================= */
+
+createPlatform(
+    0,
+    -1,
+    0,
+    18,
+    2,
+    18,
+    grass
+);
+
+
+/* =========================================================
+   SPAWN PAD
+========================================================= */
+
+const spawnPad =
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            4,
+            4,
+            .25,
+            32
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0x00e5ff,
+            emissive: 0x003f55,
+            emissiveIntensity: 1
+        })
+    );
+
+spawnPad.position.set(
+    0,
+    .15,
+    0
+);
+
+spawnPad.receiveShadow = true;
+
+scene.add(spawnPad);
+
+
+/* =========================================================
+   OBBY PLATFORMS
+========================================================= */
+
+/*
+    These platforms are deliberately
+    wider and closer together so
+    jumps are much easier.
+*/
+
+const level = [
+
+    [0, 1, -11, 10, 1, 10],
+
+    [5, 2.8, -21, 9, 1, 9],
+
+    [-2, 4.5, -31, 9, 1, 9],
+
+    [-8, 6, -41, 8, 1, 8],
+
+    [-2, 7.5, -51, 9, 1, 9],
+
+    [7, 9, -61, 9, 1, 9],
+
+    [1, 10.5, -71, 9, 1, 9],
+
+    [-7, 12, -81, 9, 1, 9],
+
+    [0, 13.5, -91, 10, 1, 10],
+
+    [8, 15, -101, 9, 1, 9],
+
+    [1, 16.5, -111, 10, 1, 10],
+
+    [-6, 18, -121, 9, 1, 9],
+
+    [0, 19.5, -131, 12, 1, 12]
+];
+
+level.forEach(
+    (p, i) => {
+
+        createPlatform(
+            p[0],
+            p[1],
+            p[2],
+            p[3],
+            p[4],
+            p[5],
+
+            i % 2 === 0
+                ? blue
+                : purple
+        );
+    }
+);
+
+
+/* =========================================================
+   EXTRA YELLOW PLATFORMS
+========================================================= */
+
+createPlatform(
+    -11,
+    8,
+    -56,
+    5,
+    1,
+    5,
+    yellow
+);
+
+createPlatform(
+    12,
+    11,
+    -76,
+    5,
+    1,
+    5,
+    yellow
+);
+
+createPlatform(
+    -12,
+    15,
+    -96,
+    5,
+    1,
+    5,
+    yellow
+);
+
+
+/* =========================================================
+   CHECKPOINTS
+========================================================= */
+
+const checkpoints = [];
+
+function makeCheckpoint(
+    x,
+    y,
+    z,
+    number
+) {
+
+    const group =
+        new THREE.Group();
+
+    const post =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                .15,
+                .15,
+                3,
+                12
+            ),
+            white
+        );
+
+    post.position.y = 1.5;
+
+    const flag =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                1.5,
+                .8,
+                .08
+            ),
+            yellow
+        );
+
+    flag.position.set(
+        .7,
+        2.3,
+        0
+    );
+
+    group.add(post);
+    group.add(flag);
+
+    group.position.set(
+        x,
+        y,
+        z
+    );
+
+    scene.add(group);
+
+    checkpoints.push({
+        x: x,
+        y: y,
+        z: z,
+        number: number
+    });
+}
+
+makeCheckpoint(
+    0,
+    0,
+    0,
+    1
+);
+
+makeCheckpoint(
+    -2,
+    4.5,
+    -31,
+    2
+);
+
+makeCheckpoint(
+    7,
+    9,
+    -61,
+    3
+);
+
+makeCheckpoint(
+    0,
+    13.5,
+    -91,
+    4
+);
+
+makeCheckpoint(
+    1,
+    16.5,
+    -111,
+    5
+);
+
+
+/* =========================================================
+   FINISH PLATFORM
+========================================================= */
+
+createPlatform(
+    0,
+    20.5,
+    -131,
+    12,
+    1,
+    12,
+    green
+);
+
+
+/* =========================================================
+   FINISH RING
+========================================================= */
+
+const finishRing =
+    new THREE.Mesh(
+        new THREE.TorusGeometry(
+            3,
+            .35,
+            12,
+            32
+        ),
+        green
+    );
+
+finishRing.rotation.x =
+    Math.PI / 2;
+
+finishRing.position.set(
+    0,
+    22.5,
+    -131
+);
+
+scene.add(finishRing);
+
+
+/* =========================================================
+   CLOUDS
+========================================================= */
+
+function cloud(x, y, z) {
+
+    const group =
+        new THREE.Group();
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        const ball =
+            new THREE.Mesh(
+                new THREE.SphereGeometry(
+                    2 +
+                    Math.random() * 1.5,
+                    16,
+                    16
+                ),
+                white
+            );
+
+        ball.position.x =
+            i * 2 - 4;
+
+        ball.position.y =
+            Math.random() * 1.5;
+
+        group.add(ball);
+    }
+
+    group.position.set(
+        x,
+        y,
+        z
+    );
+
+    scene.add(group);
+}
+
+cloud(
+    -25,
+    30,
+    -40
+);
+
+cloud(
+    30,
+    40,
+    -70
+);
+
+cloud(
+    -30,
+    35,
+    -110
+);
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+const player =
+    new THREE.Group();
+
+
+/* Body */
+
+const body =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.1,
+            1.5,
+            .7
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0xff4757
+        })
+    );
+
+body.position.y = 1.5;
+
+body.castShadow = true;
+
+
+/* Head */
+
+const head =
+    new THREE.Mesh(
+        new THREE.SphereGeometry(
+            .48,
+            20,
+            20
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0xffc7a0
+        })
+    );
+
+head.position.y = 2.55;
+
+head.castShadow = true;
+
+
+/* Legs */
+
+const leftLeg =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            .35,
+            .9,
+            .4
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0x222222
+        })
+    );
+
+leftLeg.position.set(
+    -.28,
+    .3,
+    0
+);
+
+const rightLeg =
+    leftLeg.clone();
+
+rightLeg.position.x =
+    .28;
+
+
+/* Arms */
+
+const leftArm =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            .3,
+            1.1,
+            .3
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0xff4757
+        })
+    );
+
+leftArm.position.set(
+    -.75,
+    1.55,
+    0
+);
+
+const rightArm =
+    leftArm.clone();
+
+rightArm.position.x =
+    .75;
+
+
+player.add(
+    body,
+    head,
+    leftLeg,
+    rightLeg,
+    leftArm,
+    rightArm
+);
+
+scene.add(player);
+
+
+/* =========================================================
+   GAME VARIABLES
+========================================================= */
+
+const keys = {};
+
+const velocity =
+    new THREE.Vector3();
+
+let onGround = false;
+
+let yaw = 0;
+
+let pitch = .2;
+
+let checkpoint = 1;
+
+let deaths = 0;
+
+let won = false;
+
+
+/* =========================================================
+   KEYBOARD INPUT
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    e => {
+
+        keys[e.code] = true;
+
+        /*
+            Very forgiving jump.
+        */
+
+        if (
+            e.code === "Space" &&
+            onGround
+        ) {
+
+            velocity.y = 12;
+
+            onGround = false;
+        }
+
+        if (
+            e.code === "KeyR"
+        ) {
+
+            respawn();
+        }
+    }
+);
+
+
+document.addEventListener(
+    "keyup",
+    e => {
+
+        keys[e.code] = false;
+    }
+);
+
+
+/* =========================================================
+   MOUSE LOOK
+========================================================= */
+
+let mouseDown = false;
+
+document.addEventListener(
+    "mousedown",
+    () => {
+
+        mouseDown = true;
+    }
+);
+
+document.addEventListener(
+    "mouseup",
+    () => {
+
+        mouseDown = false;
+    }
+);
+
+document.addEventListener(
+    "mousemove",
+    e => {
+
+        if (!mouseDown)
+            return;
+
+        yaw -=
+            e.movementX * .004;
+
+        pitch -=
+            e.movementY * .003;
+
+        pitch =
+            THREE.MathUtils.clamp(
+                pitch,
+                -.7,
+                .9
+            );
+    }
+);
+
+
+/* =========================================================
+   MOBILE TOGGLE
+========================================================= */
+
+const mobileControls =
+    document.getElementById(
+        "mobileControls"
+    );
+
+const mobileToggle =
+    document.getElementById(
+        "mobileToggle"
+    );
+
+let mobileVisible = false;
+
+mobileToggle.addEventListener(
+    "click",
+    () => {
+
+        mobileVisible =
+            !mobileVisible;
+
+        mobileControls.style.display =
+            mobileVisible
+                ? "block"
+                : "none";
+
+        mobileToggle.textContent =
+            mobileVisible
+                ? "❌ Hide Controls"
+                : "📱 Mobile Controls";
+    }
+);
+
+
+/* =========================================================
+   MOBILE JOYSTICK
+========================================================= */
+
+const joystick =
+    document.getElementById(
+        "joystick"
+    );
+
+const stick =
+    document.getElementById(
+        "stick"
+    );
+
+let joystickActive = false;
+
+let joystickX = 0;
+
+let joystickY = 0;
+
+
+function updateJoystick(
+    clientX,
+    clientY
+) {
+
+    const rect =
+        joystick.getBoundingClientRect();
+
+    const centerX =
+        rect.left +
+        rect.width / 2;
+
+    const centerY =
+        rect.top +
+        rect.height / 2;
+
+    let dx =
+        clientX - centerX;
+
+    let dy =
+        clientY - centerY;
+
+    const max = 40;
+
+    const distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+    if (
+        distance > max
+    ) {
+
+        dx =
+            dx /
+            distance *
+            max;
+
+        dy =
+            dy /
+            distance *
+            max;
+    }
+
+    joystickX =
+        dx / max;
+
+    joystickY =
+        dy / max;
+
+    stick.style.transform =
+        `translate(${dx}px, ${dy}px)`;
+}
+
+
+joystick.addEventListener(
+    "pointerdown",
+    e => {
+
+        joystickActive = true;
+
+        joystick.setPointerCapture(
+            e.pointerId
+        );
+
+        updateJoystick(
+            e.clientX,
+            e.clientY
+        );
+    }
+);
+
+
+joystick.addEventListener(
+    "pointermove",
+    e => {
+
+        if (!joystickActive)
+            return;
+
+        updateJoystick(
+            e.clientX,
+            e.clientY
+        );
+    }
+);
+
+
+function stopJoystick() {
+
+    joystickActive = false;
+
+    joystickX = 0;
+
+    joystickY = 0;
+
+    stick.style.transform =
+        "translate(0px, 0px)";
+}
+
+
+joystick.addEventListener(
+    "pointerup",
+    stopJoystick
+);
+
+joystick.addEventListener(
+    "pointercancel",
+    stopJoystick
+);
+
+
+/* =========================================================
+   MOBILE JUMP
+========================================================= */
+
+document
+    .getElementById(
+        "jumpButton"
+    )
+    .addEventListener(
+        "pointerdown",
+        e => {
+
+            e.preventDefault();
+
+            if (onGround) {
+
+                velocity.y = 12;
+
+                onGround = false;
+            }
+        }
+    );
+
+
+/* =========================================================
+   MOBILE LOOK BUTTONS
+========================================================= */
+
+function createHoldButton(
+    element
+) {
+
+    let active = false;
+
+    element.addEventListener(
+        "pointerdown",
+        e => {
+
+            e.preventDefault();
+
+            active = true;
+
+            element.setPointerCapture(
+                e.pointerId
+            );
+        }
+    );
+
+    element.addEventListener(
+        "pointerup",
+        () => {
+
+            active = false;
+        }
+    );
+
+    element.addEventListener(
+        "pointercancel",
+        () => {
+
+            active = false;
+        }
+    );
+
+    return () => active;
+}
+
+
+const leftLook =
+    createHoldButton(
+        document.getElementById(
+            "lookLeft"
+        )
+    );
+
+const rightLook =
+    createHoldButton(
+        document.getElementById(
+            "lookRight"
+        )
+    );
+
+const upLook =
+    createHoldButton(
+        document.getElementById(
+            "lookUp"
+        )
+    );
+
+const downLook =
+    createHoldButton(
+        document.getElementById(
+            "lookDown"
+        )
+    );
+
+
+/* =========================================================
+   COLLISION BOUNDS
+========================================================= */
+
+function playerBounds() {
+
+    return {
+
+        minX:
+            player.position.x - .5,
+
+        maxX:
+            player.position.x + .5,
+
+        minY:
+            player.position.y,
+
+        maxY:
+            player.position.y + 3,
+
+        minZ:
+            player.position.z - .35,
+
+        maxZ:
+            player.position.z + .35
+    };
+}
+
+
+function platformBounds(p) {
+
+    return {
+
+        minX:
+            p.mesh.position.x -
+            p.w / 2,
+
+        maxX:
+            p.mesh.position.x +
+            p.w / 2,
+
+        minY:
+            p.mesh.position.y -
+            p.h / 2,
+
+        maxY:
+            p.mesh.position.y +
+            p.h / 2,
+
+        minZ:
+            p.mesh.position.z -
+            p.d / 2,
+
+        maxZ:
+            p.mesh.position.z +
+            p.d / 2
+    };
+}
+
+
+/* =========================================================
+   RESPAWN
+========================================================= */
+
+function respawn() {
+
+    const cp =
+        checkpoints[
+            checkpoint - 1
+        ];
+
+    player.position.set(
+        cp.x,
+        cp.y + 1,
+        cp.z
+    );
+
+    velocity.set(
+        0,
+        0,
+        0
+    );
+}
+
+
+/* =========================================================
+   DEATH
+========================================================= */
+
+function die() {
+
+    deaths++;
+
+    document.getElementById(
+        "deaths"
+    ).textContent =
+        deaths;
+
+    respawn();
+}
+
+
+/* =========================================================
+   CHECKPOINT UPDATE
+========================================================= */
+
+function updateCheckpoint() {
+
+    for (
+        let i = 0;
+        i < checkpoints.length;
+        i++
+    ) {
+
+        const cp =
+            checkpoints[i];
+
+        const dx =
+            player.position.x -
+            cp.x;
+
+        const dz =
+            player.position.z -
+            cp.z;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dz * dz
+            );
+
+        if (
+            distance < 3 &&
+            i + 1 > checkpoint
+        ) {
+
+            checkpoint =
+                i + 1;
+
+            document.getElementById(
+                "checkpoint"
+            ).textContent =
+                checkpoint;
+        }
+    }
+}
+
+
+/* =========================================================
+   FINISH CHECK
+========================================================= */
+
+function checkFinish() {
+
+    if (won)
+        return;
+
+    const dx =
+        player.position.x;
+
+    const dz =
+        player.position.z +
+        131;
+
+    if (
+        Math.abs(dx) < 6 &&
+        Math.abs(dz) < 6 &&
+        player.position.y > 19
+    ) {
+
+        won = true;
+
+        document.getElementById(
+            "message"
+        ).style.display =
+            "grid";
+    }
+}
+
+
+/* =========================================================
+   PLAYER UPDATE
+========================================================= */
+
+function updatePlayer(dt) {
+
+    if (won)
+        return;
+
+
+    /* -----------------------------------------
+       LOOK WITH ARROW KEYS
+    ----------------------------------------- */
+
+    const lookSpeed = 1.8;
+
+
+    if (keys["ArrowLeft"])
+        yaw +=
+            lookSpeed * dt;
+
+    if (keys["ArrowRight"])
+        yaw -=
+            lookSpeed * dt;
+
+    if (keys["ArrowUp"])
+        pitch +=
+            lookSpeed * dt;
+
+    if (keys["ArrowDown"])
+        pitch -=
+            lookSpeed * dt;
+
+
+    /* -----------------------------------------
+       MOBILE LOOK
+    ----------------------------------------- */
+
+    if (leftLook())
+        yaw +=
+            lookSpeed * dt;
+
+    if (rightLook())
+        yaw -=
+            lookSpeed * dt;
+
+    if (upLook())
+        pitch +=
+            lookSpeed * dt;
+
+    if (downLook())
+        pitch -=
+            lookSpeed * dt;
+
+
+    pitch =
+        THREE.MathUtils.clamp(
+            pitch,
+            -.7,
+            .9
+        );
+
+
+    /* -----------------------------------------
+       MOVEMENT
+    ----------------------------------------- */
+
+    let forward = 0;
+
+    let strafe = 0;
+
+
+    if (keys["KeyW"])
+        forward += 1;
+
+    if (keys["KeyS"])
+        forward -= 1;
+
+    if (keys["KeyA"])
+        strafe -= 1;
+
+    if (keys["KeyD"])
+        strafe += 1;
+
+
+    /* Mobile joystick */
+
+    if (
+        Math.abs(joystickY) > .1
+    ) {
+
+        forward -= joystickY;
+    }
+
+    if (
+        Math.abs(joystickX) > .1
+    ) {
+
+        strafe += joystickX;
+    }
+
+
+    const movement =
+        new THREE.Vector3();
+
+
+    /*
+       W moves exactly toward
+       the direction the player
+       is looking.
+    */
+
+    const forwardVector =
+        new THREE.Vector3(
+            -Math.sin(yaw),
+            0,
+            -Math.cos(yaw)
+        );
+
+
+    const rightVector =
+        new THREE.Vector3(
+            Math.cos(yaw),
+            0,
+            -Math.sin(yaw)
+        );
+
+
+    movement.addScaledVector(
+        forwardVector,
+        forward
+    );
+
+    movement.addScaledVector(
+        rightVector,
+        strafe
+    );
+
+
+    if (
+        movement.length() > 0
+    ) {
+
+        movement.normalize();
+
+        const speed = 9;
+
+        velocity.x =
+            movement.x *
+            speed;
+
+        velocity.z =
+            movement.z *
+            speed;
+
+        player.rotation.y =
+            Math.atan2(
+                movement.x,
+                movement.z
+            );
+
+    } else {
+
+        velocity.x *= .82;
+
+        velocity.z *= .82;
+    }
+
+
+    /* -----------------------------------------
+       GRAVITY
+    ----------------------------------------- */
+
+    /*
+       Lower gravity makes
+       every jump easier.
+    */
+
+    velocity.y -=
+        20 * dt;
+
+
+    const oldY =
+        player.position.y;
+
+
+    player.position.x +=
+        velocity.x * dt;
+
+    player.position.y +=
+        velocity.y * dt;
+
+    player.position.z +=
+        velocity.z * dt;
+
+
+    onGround = false;
+
+
+    /* -----------------------------------------
+       PLATFORM COLLISION
+    ----------------------------------------- */
+
+    const bounds =
+        playerBounds();
+
+
+    for (
+        const p of platforms
+    ) {
+
+        const b =
+            platformBounds(p);
+
+
+        const horizontal =
+            bounds.maxX > b.minX &&
+            bounds.minX < b.maxX &&
+            bounds.maxZ > b.minZ &&
+            bounds.minZ < b.maxZ;
+
+
+        if (!horizontal)
+            continue;
+
+
+        /*
+           Generous landing tolerance.
+        */
+
+        if (
+            velocity.y <= 0 &&
+            oldY >=
+                b.maxY - .6 &&
+            player.position.y <=
+                b.maxY + .15
+        ) {
+
+            player.position.y =
+                b.maxY;
+
+            velocity.y = 0;
+
+            onGround = true;
+        }
+    }
+
+
+    /* -----------------------------------------
+       RED FLOOR
+    ----------------------------------------- */
+
+    if (
+        player.position.y < -6
+    ) {
+
+        die();
+
+        return;
+    }
+
+
+    updateCheckpoint();
+
+    checkFinish();
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function updateCamera() {
+
+    const distance = 9;
+
+    const horizontal =
+        Math.cos(pitch) *
+        distance;
+
+    const height =
+        Math.sin(pitch) *
+        distance;
+
+
+    const offsetX =
+        Math.sin(yaw) *
+        horizontal;
+
+    const offsetZ =
+        Math.cos(yaw) *
+        horizontal;
+
+
+    const target =
+        new THREE.Vector3(
+            player.position.x,
+            player.position.y + 1.5,
+            player.position.z
+        );
+
+
+    const desired =
+        new THREE.Vector3(
+            player.position.x +
+                offsetX,
+
+            player.position.y +
+                3 +
+                height,
+
+            player.position.z +
+                offsetZ
+        );
+
+
+    camera.position.lerp(
+        desired,
+        .12
+    );
+
+    camera.lookAt(
+        target
+    );
+}
+
+
+/* =========================================================
+   PLAYER ANIMATION
+========================================================= */
+
+let walkTime = 0;
+
+function animatePlayer(dt) {
+
+    const moving =
+        Math.abs(velocity.x) +
+        Math.abs(velocity.z) >
+        .5;
+
+
+    if (
+        moving &&
+        onGround
+    ) {
+
+        walkTime +=
+            dt * 10;
+
+
+        leftLeg.rotation.x =
+            Math.sin(
+                walkTime
+            ) * .5;
+
+        rightLeg.rotation.x =
+            -Math.sin(
+                walkTime
+            ) * .5;
+
+        leftArm.rotation.x =
+            -Math.sin(
+                walkTime
+            ) * .5;
+
+        rightArm.rotation.x =
+            Math.sin(
+                walkTime
+            ) * .5;
+
+    } else {
+
+        leftLeg.rotation.x *= .8;
+
+        rightLeg.rotation.x *= .8;
+
+        leftArm.rotation.x *= .8;
+
+        rightArm.rotation.x *= .8;
+    }
+}
+
+
+/* =========================================================
+   WORLD ANIMATION
+========================================================= */
+
+function animateWorld(dt) {
+
+    finishRing.rotation.z +=
+        dt * 2;
+
+    spawnPad.rotation.z +=
+        dt * .5;
+}
+
+
+/* =========================================================
+   RESTART
+========================================================= */
+
+function restartGame() {
+
+    won = false;
+
+    checkpoint = 1;
+
+    deaths = 0;
+
+
+    document.getElementById(
+        "checkpoint"
+    ).textContent = 1;
+
+    document.getElementById(
+        "deaths"
+    ).textContent = 0;
+
+
+    document.getElementById(
+        "message"
+    ).style.display =
+        "none";
+
+
+    respawn();
+}
+
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+const clock =
+    new THREE.Clock();
+
+
+function loop() {
+
+    requestAnimationFrame(
+        loop
+    );
+
+
+    const dt =
+        Math.min(
+            clock.getDelta(),
+            .033
+        );
+
+
+    updatePlayer(dt);
+
+    animatePlayer(dt);
+
+    updateCamera();
+
+    animateWorld(dt);
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+
+loop();
+
+
+/* =========================================================
+   WINDOW RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+    }
+);
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+respawn();
+
+</script>
+
+</body>
+</html>
