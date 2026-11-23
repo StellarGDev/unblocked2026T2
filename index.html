@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10111b">
+    <title>GameHub | Unblocked Games</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="./" class="logo">
+                Game<span>Hub</span>
+                <small>UNBLOCKED</small>
+            </a>
+
+            <nav>
+                <a href="#games">Games</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <span class="hero-label">YOUR GAME DESTINATION</span>
+                <h1>Play <span>Games.</span></h1>
+                <p>
+                    Free browser games, all in one place.
+                    <br>
+                    NO school playing is permited
+                </p>
+
+                <div class="search-wrapper">
+                    <span class="search-icon">⌕</span>
+                    <input
+                        id="searchInput"
+                        type="search"
+                        placeholder="Search games..."
+                        autocomplete="off"
+                        aria-label="Search games"
+                    >
+                </div>
+            </div>
+        </section>
+
+        <section id="games" class="games-section">
+            <div class="section-title">
+                <div>
+                    <span class="section-label">GAME LIBRARY</span>
+                    <h2>All Games</h2>
+                </div>
+
+                <span id="gameCount" class="game-count">
+                    Loading...
+                </span>
+            </div>
+
+            <div id="gamesGrid" class="games-grid">
+                <div class="loading">Loading games...</div>
+            </div>
+
+            <div id="noResults" class="no-results hidden">
+                <h3>No games found</h3>
+                <p>Try searching for something else.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>
+            GameHub created by stellargdev in 2026.
+            Not affiliated with the original games.
+        </p>
+    </footer>
+
+    <!-- GAME PLAYER -->
+    <div id="gameModal" class="modal hidden">
+
+        <div id="modalBackdrop" class="modal-backdrop"></div>
+
+        <div class="game-window">
+
+            <div class="game-toolbar">
+                <div class="player-brand">
+                    <span class="player-dot"></span>
+                    <h2 id="modalTitle">Game</h2>
+                </div>
+
+                <div class="toolbar-buttons">
+                    <button
+                        id="fullscreenButton"
+                        title="Fullscreen"
+                        aria-label="Fullscreen"
+                    >⛶</button>
+
+                    <button
+                        id="closeButton"
+                        class="close-button"
+                        title="Close"
+                        aria-label="Close game"
+                    >×</button>
+                </div>
+            </div>
+
+            <div id="iframeContainer" class="iframe-container">
+                <iframe
+                    id="gameFrame"
+                    title="Game player"
+                    allow="autoplay; fullscreen; gamepad"
+                    allowfullscreen
+                ></iframe>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+</html>
